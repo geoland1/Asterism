@@ -7,4 +7,4 @@ Asterism uses image manipulation programs common to most Linux distributions and
 
 Primarily intented for RAW image data acquired with consumer digital cameras, Asterism handles fits tiff png and even jpeg. 
 
-An html user manual is included in the repository.
+An html user manual is available on the Asterism web site - www.synergous.com
