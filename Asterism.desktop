@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=asterism
+Comment=Launch Asterism
+Exec=/usr/local/bin/asterism
+Icon=/usr/local/bin/AsterismLOGOs.png
+Type=Application
+Name[en_AU]=Asterism
+GenericName[en_AU]=Astronomical Image Processing
+Comment[en_AU]=Launch Asterism

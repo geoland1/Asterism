@@ -1,0 +1,146 @@
+#!/bin/bash
+#ifs.sh
+
+# Convert - file format conversion - Rowland Cheshire March 2018
+# cheshire_r@fastmail.fm
+
+# Convert image files and other formats
+# GPLv3 - distribute as desired - not for commercial use - attribution rights.
+
+# Acknowledgements
+# Ivo Jaeger (http://siliconfields.net)
+# dcraw: (http://www.cybercom.net/~dcoffin/)
+# ImageMagick: (http://www.imagemagick.org/script/index.php)
+
+# location of Asterism source files
+
+	if [ -e /usr/local/bin/asterism ]; then
+	source=$(readlink -f /usr/local/bin); else
+	source=$(pwd)
+	fi
+
+# no at bridge	
+
+	export NO_AT_BRIDGE=1
+
+# title
+	TITLE='Convert'
+
+# location of yad window icon
+
+	if [ -e /usr/local/bin/AsterismLOGOs.png ]; then
+	WICON=$(readlink -f /usr/local/bin/AsterismLOGOs.png); else
+	WICON=$(readlink -f $SOURCE/AsterismLOGOs.png)
+fi
+
+# create directory (if needed) helper function
+	function createDirIfNeeded ()
+	{
+	if [ -d $1 ]
+	then
+		echo " " >/dev/null 2>&1
+	else
+		echo "		Creating $1 folder"
+	mkdir $1
+	fi
+	}
+
+# yad progress function
+	function yadProgress ()
+	{
+	yad --progress --center \
+  		--title="$TITLE" \
+		--progress-text="$text" \
+		--window-icon=$WICON \
+		--width=300 \
+		--pulsate \
+		--no-buttons \
+  		--auto-close \
+  		--auto-kill 2>/dev/null
+	}
+
+# yad error function
+	function yadError ()
+	{
+	(( $? != 0 )) && yad --error --text="Error in yad command"
+	}
+
+# killall function
+	function killAll ()
+	{
+	killall inspector awk
+	}
+
+# location of inspector log
+
+	log=~/.asterism/convert_log
+
+# select image files
+	text=$(echo "Select image files")
+	
+	IFS=$'\n'
+	files=($(yad --file-selection --center --window-icon=$WICON --height=600 --width=480 --title="$TITLE - Select image files" --text="Select images" --button=Skip:1 --button=Select:0 --multiple --separator=$'\n' 2>/dev/null))
+	echo "${files[@]}"
+
+	imagedir=`echo "$files" |xargs dirname`
+	echo $imagedir
+
+	convertdir=$imagedir/converted
+
+	createDirIfNeeded $convertdir
+
+	yad --width=350 --window-icon=$WICON --title="$TITLE" \
+		--text="<b>Convert file format</b> " \
+		--form \
+		--button=Quit:1 \
+		--button=Convert:0 \
+		--separator=":" \
+		--field="Image resolution (size)":SCL \
+			'100!0..100!0' \
+		--field="RAW files":CB \
+			'YES!NO' \
+		--field="Output format" \
+			'tiff' \
+		--field="Bit depth":NUM \
+			'16!8..32!8!1' | awk 'BEGIN { FS = ":" } ; { print $0 }' > $log
+
+	size=$(awk 'BEGIN { FS = ":" } ; { print $1 }' size=$1 $log)
+	raw=$(awk 'BEGIN { FS = ":" } ; { print $2 }' raw=$2 $log)
+	format=$(awk 'BEGIN { FS = ":" } ; { print $3 }' format=$3 $log)
+	depth=$(awk 'BEGIN { FS = ":" } ; { print $4 }' depth=$4 $log)
+
+	echo "		Resolution = $size RAW = $raw Format = $format Depth = $depth"
+	
+# run quit convert
+	if [[ $? = 1 || $? = 252 ]]; then
+	killAll
+	exit 1; else
+	echo " " >/dev/null 2>&1
+	fi
+
+# image format conversion
+	text=$(echo "Converting files")
+	(
+	echo ""
+
+	if [ "$raw" = "YES" ]; then
+	echo " " >/dev/null 2>&1; else
+	for i in `ls -v ${files[@]}`;do mogrify -depth $depth -resize $size% -format $format $i;done
+	fi
+
+	if [ "$raw" != "YES" ]; then
+	echo " " >/dev/null 2>&1; else
+	for i in `ls -v ${files[@]}`;do dcraw -4 -o 0 -t 0 -w -T $i;done
+	mv -f $imagedir/*.tiff $convertdir
+	fi
+
+	if [ "$format" = "tiff" ]; then
+	echo " " >/dev/null 2>&1; else
+	for i in `ls -v $convertdir/*.tiff`;do mogrify -depth $depth -resize $size% -format $format $i;done
+	fi
+	)|
+	yadProgress
+	yadError
+	killAll
+	
+exit
