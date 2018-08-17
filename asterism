@@ -70,7 +70,7 @@ fi
 	fi
 
 # Asterism version
-	Asterism_version=$'Asterism_0.1.3.1'
+	Asterism_version=$'Asterism_0.1.3.2'
 
 # title
 	title='Asterism'
@@ -2005,6 +2005,29 @@ fi
 	createDirIfNeeded $debaydir
 	
 	mv -f *.tiff $debaydir
+
+# mean stacking QRmin QRmax values
+	if [ "$stack" != "MEAN"  ]; then
+	echo " " >/dev/null 2>&1; else
+
+# Select QRmin QRmax values for light frames
+	yad --form --center --width=300 --window-icon=$wicon --title="$title - QRmin QRMax $name" --separator=':' \
+	--button=No:1 \
+	--button=Apply:0 \
+	--text="MEAN stack - Please select QRMin and QRMax parameters, if required?" \
+	--field="QRMax":NUM \
+		'0!0..5!0.000001!6' \
+	--field="QRMin":NUM \
+		'100!0..100!0.000001!6' | awk 'BEGIN { FS = ":" } ; { print $0 }' | tee qr.txt
+
+	qrmax=$(awk 'BEGIN { FS = ":" } ; { print $1 }' qrmax=$1 qr.txt)
+	qrmin=$(awk 'BEGIN { FS = ":" } ; { print $2 }' qrmin=$2 qr.txt)
+	
+	if [ $? = 1 ]; then
+	echo " " >/dev/null 2>&1; else
+	echo $qrmax $qrmin
+	fi
+fi
 	
 # STACK IMAGES
 	text=$(echo "Polynomial stack")
@@ -2110,20 +2133,20 @@ fi
 
 # Select noise reduction parameters for light frames
 	yad --form --center --width=300 --window-icon=$wicon --title="$title - Noise reduction warning $name" --separator=':' \
-		--button=No:1 \
-		--button=Apply:0 \
-		--text="Noise reduction is selected and has been applied to your flat frames.
+	--button=No:1 \
+	--button=Apply:0 \
+	--text="Noise reduction is selected and has been applied to your flat frames.
 Please select the noise reduction parameters for your light frames?" \
-		--field="Noise - radius":NUM \
-			'0!0..30!1!0' \
-		--field="Noise - amount":NUM \
-			'0!0..5!0.01!2' | awk 'BEGIN { FS = ":" } ; { print $0 }' | tee nr.txt
+	--field="Noise - radius":NUM \
+		'0!0..30!1!0' \
+	--field="Noise - amount":NUM \
+		'0!0..5!0.01!2' | awk 'BEGIN { FS = ":" } ; { print $0 }' | tee nr.txt
 
-		radius=$(awk 'BEGIN { FS = ":" } ; { print $1 }' radius=$1 nr.txt)
-		amount=$(awk 'BEGIN { FS = ":" } ; { print $2 }' amount=$2 nr.txt)
+	radius=$(awk 'BEGIN { FS = ":" } ; { print $1 }' radius=$1 nr.txt)
+	amount=$(awk 'BEGIN { FS = ":" } ; { print $2 }' amount=$2 nr.txt)
 	
-		if [ $? = 1 ]; then
-		echo " " >/dev/null 2>&1; else
+	if [ $? = 1 ]; then
+	echo " " >/dev/null 2>&1; else
 
 	text=$(echo "Noise reduction")
 
@@ -2301,7 +2324,7 @@ yad --progress --center \
 	killAll
 
 	cd $source
-	rm -f nr.txt
+	rm -f nr.txt qr.txt
 
 	if [ ! -x /usr/local/bin/asterism ]; then
 	bash -x ./asterism; else
