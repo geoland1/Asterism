@@ -70,7 +70,7 @@ fi
 	fi
 
 # Asterism version
-	Asterism_version=$'Asterism_0.1.3.2'
+	Asterism_version=$'Asterism_0.1.3.3'
 
 # title
 	title='Asterism'
@@ -2011,21 +2011,23 @@ fi
 	echo " " >/dev/null 2>&1; else
 
 # Select QRmin QRmax values for light frames
-	yad --form --center --width=300 --window-icon=$wicon --title="$title - QRmin QRMax $name" --separator=':' \
-	--button=No:1 \
+	values=`yad --form --center --width=300 --window-icon=$wicon --title="$title - QRmin QRMax $name" --separator='' \
+	--button=Skip:1 \
 	--button=Apply:0 \
 	--text="MEAN stack - Please select QRMin and QRMax parameters, if required?" \
 	--field="QRMax":NUM \
 		'0!0..5!0.000001!6' \
 	--field="QRMin":NUM \
-		'100!0..100!0.000001!6' | awk 'BEGIN { FS = ":" } ; { print $0 }' | tee qr.txt
+		'100!0..100!0.000001!6'`
 
-	qrmax=$(awk 'BEGIN { FS = ":" } ; { print $1 }' qrmax=$1 qr.txt)
-	qrmin=$(awk 'BEGIN { FS = ":" } ; { print $2 }' qrmin=$2 qr.txt)
-	
+	qrmax=$(echo "$values" | sed s'/.........$//')
+	qrmin=$(echo "$values" | sed 's/^........//')
+
 	if [ $? = 1 ]; then
 	echo " " >/dev/null 2>&1; else
+
 	echo $qrmax $qrmin
+
 	fi
 fi
 	
@@ -2132,21 +2134,23 @@ fi
 	if [[ "$radius" != 0.000000 || "$amount" != 0.000000 ]] && [ "$flat" = "TRUE" ]; then
 
 # Select noise reduction parameters for light frames
-	yad --form --center --width=300 --window-icon=$wicon --title="$title - Noise reduction warning $name" --separator=':' \
-	--button=No:1 \
+	values=`yad --form --center --width=300 --window-icon=$wicon --title="$title - Noise reduction warning $name" --separator='' \
+	--button=Skip:1 \
 	--button=Apply:0 \
 	--text="Noise reduction is selected and has been applied to your flat frames.
 Please select the noise reduction parameters for your light frames?" \
 	--field="Noise - radius":NUM \
 		'0!0..30!1!0' \
 	--field="Noise - amount":NUM \
-		'0!0..5!0.01!2' | awk 'BEGIN { FS = ":" } ; { print $0 }' | tee nr.txt
+		'0!0..5!0.01!2'`
 
-	radius=$(awk 'BEGIN { FS = ":" } ; { print $1 }' radius=$1 nr.txt)
-	amount=$(awk 'BEGIN { FS = ":" } ; { print $2 }' amount=$2 nr.txt)
+	radius=$(echo "$values" | sed s'/........$//')
+	amount=$(echo "$values" | sed 's/^........//')
 	
 	if [ $? = 1 ]; then
 	echo " " >/dev/null 2>&1; else
+
+	echo $radius $amount
 
 	text=$(echo "Noise reduction")
 
@@ -2324,7 +2328,6 @@ yad --progress --center \
 	killAll
 
 	cd $source
-	rm -f nr.txt qr.txt
 
 	if [ ! -x /usr/local/bin/asterism ]; then
 	bash -x ./asterism; else
