@@ -21,6 +21,10 @@ It is easier safer and more reliable to extract the Asterism folder to the user'
 
 VERSION HISTORY
 
+0.1.3.4
+
+Change to QRMin QRMax Radius Amount scripting
+
 0.1.3.3
 
 Rewrite QRMin QRMax Radius Amount scripting

@@ -70,7 +70,7 @@ fi
 	fi
 
 # Asterism version
-	Asterism_version=$'Asterism_0.1.3.3'
+	Asterism_version=$'Asterism_0.1.3.4'
 
 # title
 	title='Asterism'
@@ -2011,7 +2011,7 @@ fi
 	echo " " >/dev/null 2>&1; else
 
 # Select QRmin QRmax values for light frames
-	values=`yad --form --center --width=300 --window-icon=$wicon --title="$title - QRmin QRMax $name" --separator='' \
+	values=`yad --form --center --width=300 --window-icon=$wicon --title="$title - QRmin QRMax $name" --separator=' ' \
 	--button=Skip:1 \
 	--button=Apply:0 \
 	--text="MEAN stack - Please select QRMin and QRMax parameters, if required?" \
@@ -2020,8 +2020,8 @@ fi
 	--field="QRMin":NUM \
 		'100!0..100!0.000001!6'`
 
-	qrmax=$(echo "$values" | sed s'/.........$//')
-	qrmin=$(echo "$values" | sed 's/^........//')
+	qrmax="${values%???????????}" 
+	qrmin="${values#?????????}"
 
 	if [ $? = 1 ]; then
 	echo " " >/dev/null 2>&1; else
@@ -2134,7 +2134,7 @@ fi
 	if [[ "$radius" != 0.000000 || "$amount" != 0.000000 ]] && [ "$flat" = "TRUE" ]; then
 
 # Select noise reduction parameters for light frames
-	values=`yad --form --center --width=300 --window-icon=$wicon --title="$title - Noise reduction warning $name" --separator='' \
+	values=`yad --form --center --width=300 --window-icon=$wicon --title="$title - Noise reduction warning $name" --separator=' ' \
 	--button=Skip:1 \
 	--button=Apply:0 \
 	--text="Noise reduction is selected and has been applied to your flat frames.
@@ -2144,8 +2144,8 @@ Please select the noise reduction parameters for your light frames?" \
 	--field="Noise - amount":NUM \
 		'0!0..5!0.01!2'`
 
-	radius=$(echo "$values" | sed s'/........$//')
-	amount=$(echo "$values" | sed 's/^........//')
+	radius="${values%?????????}" 
+	amount="${values#?????????}"
 	
 	if [ $? = 1 ]; then
 	echo " " >/dev/null 2>&1; else
