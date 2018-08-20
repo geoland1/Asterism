@@ -2022,14 +2022,9 @@ fi
 	--field="QRMin":NUM \
 		'100!0..100!0.000001!6'`
 
-	qrmax="${values%???????????}" 
-	qrmin="${values#?????????}"
-
-	if [ $? = 1 ]; then
-	echo " " >/dev/null 2>&1; else
-
-	echo $qrmax $qrmin
-
+	if [ $? -eq 0 ]; then
+    	qrmin="${values[0]}"
+    	qrmax="${values[1]}"
 	fi
 fi
 	
@@ -2146,13 +2141,10 @@ Please select the noise reduction parameters for your light frames?" \
 	--field="Noise - amount":NUM \
 		'0!0..5!0.01!2'`
 
-	radius="${values%?????????}" 
-	amount="${values#?????????}"
-	
-	if [ $? = 1 ]; then
-	echo " " >/dev/null 2>&1; else
-
-	echo $radius $amount
+	if [ $? -eq 0 ]; then
+    	radius="${values[0]}"
+    	amount="${values[1]}"
+	fi
 
 	text=$(echo "Noise reduction")
 
@@ -2166,6 +2158,7 @@ convert stack_$name.tif -depth $depth -colorspace YCbCR -mean-shift "$radius"x"$
 	) |
 	yadProgress
 	yadError
+	fi
 fi
 
 # develop
