@@ -1,7 +1,8 @@
 # Asterism
-Astronomical image reduction / pre-processing
 
-Asterism is a Linux astronomical image data reduction and preprocessing utility written in Bash. 
+Image reduction / pre-processing
+
+Asterism is a Linux image data reduction preprocessing utility, written in Bash. Mainly, with amateur astronomical RAW image data in mind. Not to restrict its application, Asterism may be used to process macro and microscopy images. 
 
 Asterism uses image manipulation programs common to most Linux distributions and various third party scripts to create a processing pipeline. DCRAW ImageMagick and Panotools must be installed - Hugin and Macrofusion are optional.
 
