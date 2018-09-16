@@ -2,11 +2,11 @@
 
 Image reduction / pre-processing
 
+Version 0.1.3.5 onwards - simplified set-up - no installation or run from terminal required - see documentation.
+
 Asterism is a Linux image data reduction preprocessing utility, written in Bash. Mainly, with amateur astronomical RAW image data in mind. Not to restrict its application, Asterism may be used to process macro and microscopy images. 
 
-Asterism uses image manipulation programs common to most Linux distributions and various third party scripts to create a processing pipeline. Yad DCRAW ImageMagick and Panotools must be installed - Hugin and Macrofusion are optional - libtiff should be installed on most systems and gksu and kdesudo are required for system install (/usr/local/bin).
-
-Note: presently, for full functionality, run from the Asterism folder in a terminal with ./asterism - alternatively bash -x ./asterism.
+Asterism uses image manipulation programs common to most Linux distributions and various third party scripts to create a processing pipeline. Yad DCRAW ImageMagick and hugin-tools must be installed - Hugin and Macrofusion are optional - libtiff should be installed on most systems.
 
 Primarily intented for RAW image data acquired with consumer digital cameras, Asterism handles fits tiff png jpeg and many other image formats. 
 
