@@ -30,8 +30,19 @@
 
 # location of Asterism source files - negotiate Desktop link to /home/Asterism
 
-	if [ -e /usr/local/bin/asterism ]; then
-	source=$(readlink -f /usr/local/bin); else
+# get path to asterism
+	MYPATH="`dirname \"$0\"`"           	# relative
+	MYPATH="`( cd \"$MYPATH\" && pwd )`"  	# absolutized and normalized
+	if [ -z "$MYPATH" ] ; then
+# error; for some reason, the path is not accessible
+# to the script (e.g. permissions re-evaled after suid)
+  	exit 1  # fail
+fi
+
+	echo $MYPATH
+
+	if [ -e $MYPATH/asterism ]; then
+	source=$(readlink -f $MYPATH); else
 	source=$(pwd)
 	fi
 
@@ -40,37 +51,13 @@
 
 # Asterism and package installation check
 	DESKTOP=$DESKTOP_SESSION
-
-	if [[ -x /usr/bin/gksudo ]]; then
-	SUDOTYPE=gksudo; else
-	if [[ -x /usr/bin/kdesudo ]]; then
-	SUDOTYPE=kdesudo; else
-
-yad --info --center --width=350 --height=300 \
-		--title="Asterism Permissions Advice" \
-		--text="Your desktop session is $DESKTOP
-
- To system install Asterism (in /usr/local/bin) and to install required packages from Asterism, the following packages must be installed;
-
- KDE desktop requires package kdesudo
-
- or
-
- package gksu for other desktops; otherwise install required programs using the distribution package manager" \
-	--button=Cancel:1 \
-	--button=OK:0 \
-	--auto-close \
-	--auto-kill 
-	fi
-fi
-
-	if [ $? = 1 ]; then
-	exit 1; else
-	echo " " >/dev/null 2>&1
+	
+	if [ ! -e ~/.local/share/applications/Asterism.desktop ]; then
+	bash -x $source/LINK
 	fi
 
 # Asterism version
-	Asterism_version=$'Asterism_0.1.3.4'
+	Asterism_version=$'Asterism_0.1.3.5'
 
 # title
 	title='Asterism'
@@ -98,44 +85,44 @@ fi
 	# cores=$(getconf _NPROCESSORS_ONLN)
 
 # location of autowhite balance
-	if [ -e /usr/local/bin/autowhite ]; then
-	autow=$(readlink -f /usr/local/bin/autowhite); else
+	if [ -e $MYPATH/autowhite ]; then
+	autow=$(readlink -f $MYPATH/autowhite); else
 	autow=$(readlink -f $source/autowhite)
 	fi
 
 # location of colorbalance
-	if [ -e /usr/local/bin/colorbalance ]; then
-	cbalance=$(readlink -f /usr/local/bin/colorbalance); else
+	if [ -e $MYPATH/colorbalance ]; then
+	cbalance=$(readlink -f $MYPATH/colorbalance); else
 	cbalance=$(readlink -f $source/colorbalance)
 	fi
 
 # location of curves
-	if [ -e /usr/local/bin/curves ]; then
-	curves=$(readlink -f /usr/local/bin/curves); else
+	if [ -e $MYPATH/curves ]; then
+	curves=$(readlink -f $MYPATH/curves); else
 	curves=$(readlink -f $source/curves)
 	fi
 
 # location of denoise
-	if [ -e /usr/local/bin/denoise ]; then
-	denoise=$(readlink -f /usr/local/bin/denoise); else
+	if [ -e $MYPATH/denoise ]; then
+	denoise=$(readlink -f $MYPATH/denoise); else
 	denoise=$(readlink -f $source/denoise)
 	fi
 
 # location of help file
-	if [ -e /usr/local/bin/help.txt ]; then
-	help=$(readlink -f /usr/local/bin/help.txt); else
+	if [ -e $MYPATH/help.txt ]; then
+	help=$(readlink -f $MYPATH/help.txt); else
 	help=$(readlink -f $source/help.txt)
 	fi
 
 # location of splash image
-	if [ -e /usr/local/bin/AsterismLOGOsplash.png ]; then
-	splash=$(readlink -f /usr/local/bin/AsterismLOGOsplash.png); else
+	if [ -e $MYPATH/AsterismLOGOsplash.png ]; then
+	splash=$(readlink -f $MYPATH/AsterismLOGOsplash.png); else
 	splash=$(readlink -f $source/AsterismLOGOsplash.png)
 	fi
 
 # location of yad window icon
-	if [ -e /usr/local/bin/AsterismLOGOs.png ]; then
-	wicon=$(readlink -f /usr/local/bin/AsterismLOGOs.png); else
+	if [ -e $MYPATH/AsterismLOGOs.png ]; then
+	wicon=$(readlink -f $MYPATH/AsterismLOGOs.png); else
 	wicon=$(readlink -f $source/AsterismLOGOs.png)
 	fi
 
@@ -677,31 +664,13 @@ fi
 	echo " " >/dev/null 2>&1;
 	else
 
-yad --question --window-icon=$wicon --width=300 --title="$title - Install dcraw" --text="Install dcraw?" --button=No:1 --button=Yes:0 2>/dev/null
-
-		if [ $? = 1 ]; then
-		exit 1; else
-		echo " " >/dev/null 2>&1
-		fi
-
-# Prompt for the password. Replace "the process" with a meaningful message.
-		SUDOPASSWORD="$( $SUDOTYPE --print-pass --message 'Type your password, or press Cancel.' -- : 2>/dev/null )"
-
-# Check for null entry or cancellation.
-		if [[ ${?} != 0 || -z ${SUDOPASSWORD} ]]; then
-    		exit 4
-		fi
-
-# Check that the password is valid.
-		if ! sudo -kSp '' [ 1 ] <<<"${SUDOPASSWORD}" 2>/dev/null
-		then
-   		exit 4
-		fi
-
-		echo -e $SUDOPASSWORD | sudo -S rpm -i dcraw*.rpm 
-		sudo rpm -U dcraw*.rpm
-		sudo yast2 -i dcraw*.rpm
-		sudo apt-get install dcraw
+yad --question --window-icon=$wicon --width=300 --title="$title - Install dcraw" --text="Install dcraw?" --button="Quit - install dcraw":1 2>/dev/null
+	
+	ret=$?; if [ $ret = 1 ]; then
+	killAll
+	rm -f $source/res*
+	exit 1
+	fi
 fi
 
 # look for imagemagick - imagemagick 7 proof
@@ -709,31 +678,13 @@ fi
 	echo " " >/dev/null 2>&1;
 	else
 
-yad --question --window-icon=$wicon --width=300 --title="$title Install ImageMagick" --text="Install ImageMagick?" --button=No:1 --button=Yes:0 2>/dev/null
+yad --question --window-icon=$wicon --width=300 --title="$title Install ImageMagick" --text="Install ImageMagick?" --button="Quit - install imagemagick":1 2>/dev/null
 
-		if [ $? = 1 ]; then
-		exit 1; else
-		echo " " >/dev/null 2>&1
-		fi
-
-# Prompt for the password. Replace "the process" with a meaningful message.
-		SUDOPASSWORD="$( $SUDOTYPE --print-pass --message 'Type your password, or press Cancel.' -- : 2>/dev/null )"
-
-# Check for null entry or cancellation.
-		if [[ ${?} != 0 || -z ${SUDOPASSWORD} ]]; then
-    		exit 4
-		fi
-
-# Check that the password is valid.
-		if ! sudo -kSp '' [ 1 ] <<<"${SUDOPASSWORD}" 2>/dev/null
-		then
-   		exit 4
-		fi
-
-		echo -e $SUDOPASSWORD | sudo -S sudo rpm -i imagemagick*.rpm
-		sudo rpm -U imagemagick*.rpm
-		sudo yast2 -i imagemagick*.rpm
-		sudo apt-get install imagemagick
+	ret=$?; if [ $ret = 1 ]; then
+	killAll
+	rm -f $source/res*
+	exit 1
+	fi
 fi
 
 # look for align_image_stack - image registration - likely to be installed as a dependency for macrofusion and hugin
@@ -741,31 +692,13 @@ fi
 	echo " " >/dev/null 2>&1;
 	else
 
-yad --question --window-icon=$wicon --width=300 --title="$title Install Panotools" --text="Install Panotools?" --button=No:1 --button=Yes:0 2>/dev/null
+yad --question --window-icon=$wicon --width=300 --title="$title Install hugin-tools" --text="Install hugin-tools?" --button="Quit - install hugin-tools":1 2>/dev/null
 
-		if [ $? = 1 ]; then
-		exit 1; else
-		echo " " >/dev/null 2>&1
-		fi
-
-# Prompt for the password. Replace "the process" with a meaningful message.
-		SUDOPASSWORD="$( $SUDOTYPE --print-pass --message 'Type your password, or press Cancel.' -- : 2>/dev/null )"
-
-# Check for null entry or cancellation.
-		if [[ ${?} != 0 || -z ${SUDOPASSWORD} ]]; then
-    		exit 4
-		fi
-
-# Check that the password is valid.
-		if ! sudo -kSp '' [ 1 ] <<<"${SUDOPASSWORD}" 2>/dev/null
-		then
-   		exit 4
-		fi
-
-		echo -e $SUDOPASSWORD | sudo -S sudo rpm -i panotools*.rpm
-		sudo rpm -U panotools*.rpm
-		sudo yast2 -i panotools*.rpm
-		sudo apt-get install panotools
+	ret=$?; if [ $ret = 1 ]; then
+	killAll
+	rm -f $source/res*
+	exit 1
+	fi
 fi
 
 # look for enfuse - image registration - likely to be installed as a dependency for macrofusion and hugin
@@ -773,31 +706,13 @@ fi
 	echo " " >/dev/null 2>&1;
 	else
 
-yad --question --window-icon=$wicon --width=300 --title="$title Install Enfuse" --text="Install Enfuse?" --button=No:1 --button=Yes:0 2>/dev/null
+yad --question --window-icon=$wicon --width=300 --title="$title Install Enfuse" --text="Install Enfuse?" --button="Quit - install enfuse":1 2>/dev/null
 
-		if [ $? = 1 ]; then
-		exit 1; else
-		echo " " >/dev/null 2>&1
-		fi
-
-# Prompt for the password. Replace "the process" with a meaningful message.
-		SUDOPASSWORD="$( $SUDOTYPE --print-pass --message 'Type your password, or press Cancel.' -- : 2>/dev/null )"
-
-# Check for null entry or cancellation.
-		if [[ ${?} != 0 || -z ${SUDOPASSWORD} ]]; then
-    		exit 4
-		fi
-
-# Check that the password is valid.
-		if ! sudo -kSp '' [ 1 ] <<<"${SUDOPASSWORD}" 2>/dev/null
-		then
-   		exit 4
-		fi
-
-		echo -e $SUDOPASSWORD | sudo -S sudo rpm -i enfuse*.rpm
-		sudo rpm -U enfuse*.rpm
-		sudo yast2 -i enfuse*.rpm
-		sudo apt-get install enfuse
+	ret=$?; if [ $ret = 1 ]; then
+	killAll
+	rm -f $source/res*
+	exit 1
+	fi
 fi
 
 # look for macrofusion - image integration
@@ -805,31 +720,13 @@ fi
 	echo " " >/dev/null 2>&1; else
 	if [ "$interface" = "MACROFUSION" ] && [ ! -x /usr/bin/macrofusion ]; then
 
-yad --question --window-icon=$wicon --width=300 --title="$title - Install MacroFusion" --text="Install MacroFusion?" --button=No:1 --button=Yes:0 2>/dev/null
+yad --question --window-icon=$wicon --width=300 --title="$title - Install MacroFusion" --text="Install MacroFusion?" --button="Quit - install macrofusion":1 --button=Yes:0 2>/dev/null
 
-		if [ $? = 1 ]; then
-		exit 1; else
-		echo " " >/dev/null 2>&1
+	ret=$?; if [ $ret = 1 ]; then
+	killAll
+	rm -f $source/res*
+	exit 1
 		fi
-
-# Prompt for the password. Replace "the process" with a meaningful message.
-		SUDOPASSWORD="$( $SUDOTYPE --print-pass --message 'Type your password, or press Cancel.' -- : 2>/dev/null )"
-
-# Check for null entry or cancellation.
-		if [[ ${?} != 0 || -z ${SUDOPASSWORD} ]]; then
-    		exit 4
-		fi
-
-# Check that the password is valid.
-		if ! sudo -kSp '' [ 1 ] <<<"${SUDOPASSWORD}" 2>/dev/null
-		then
-   		exit 4
-		fi
-
-		echo -e $SUDOPASSWORD | sudo -S sudo rpm -i macrofusion*.rpm
-		sudo rpm -U macrofusion*.rpm
-		sudo yast2 -i macrofusion*.rpm
-		sudo apt-get install macrofusion
 	fi
 fi
 
@@ -838,36 +735,18 @@ fi
 	echo " " >/dev/null 2>&1; else
 	if [ "$interface" = "HUGIN" ] && [ ! -x /usr/bin/hugin ]; then
 	
-yad --question --window-icon=$wicon --width=300  --title="$title - Install Hugin" --text="Install Hugin?" --button=No:1 --button=Yes:0 2>/dev/null
+yad --question --window-icon=$wicon --width=300  --title="$title - Install Hugin" --text="Install Hugin?" --button="Quit - install Hugin":1 2>/dev/null
 
-		if [ $? = 1 ]; then
-		exit 1; else
-		echo " " >/dev/null 2>&1
+	ret=$?; if [ $ret = 1 ]; then
+	killAll
+	rm -f $source/res*
+	exit 1
 		fi
-
-# Prompt for the password. Replace "the process" with a meaningful message.
-		SUDOPASSWORD="$( $SUDOTYPE --print-pass --message 'Type your password, or press Cancel.' -- : 2>/dev/null )"
-
-# Check for null entry or cancellation.
-		if [[ ${?} != 0 || -z ${SUDOPASSWORD} ]]; then
-    		exit 4
-		fi
-
-# Check that the password is valid.
-		if ! sudo -kSp '' [ 1 ] <<<"${SUDOPASSWORD}" 2>/dev/null
-		then
-   		exit 4
-		fi
-
-		echo -e $SUDOPASSWORD | sudo -S sudo rpm -i hugin*.rpm
-		sudo rpm -U hugin*.rpm
-		sudo yast2 -i hugin*.rpm
-		sudo apt-get install hugin
 	fi
 fi
 
 # continue or quit asterism
-	if [ $? = 0 ]; then
+	ret=$?; if [ $ret = 0 ]; then
 	echo " " >/dev/null 2>&1; else
 	killAll
 	exit 1
@@ -968,7 +847,7 @@ Note: Asterism will accomodate any combination of master frame selection but dar
 	--button=Return:0 \
 	--button=Continue:1 2>/dev/null
 
-		if [ $? = 1 ]; then
+		ret=$?; if [ $ret = 1 ]; then
 		echo " " >/dev/null 2>&1; else
 
 	text=$(echo "Returning to Asterism")
@@ -1441,7 +1320,7 @@ fi
 	IFS=$'\n'
 	files=($(yad --file-selection --center --window-icon=$wicon --height=600 --width=480 --title="$title - Master bias $name" --text="Select master bias" --button=Skip:1 --button=Load:0 --separator=$'\n' 2>/dev/null))
 
-	if [ $? = 1 ]; then
+	ret=$?; if [ $ret = 1 ]; then
 	mv $tmpdir/*.miff $tmpfdir
 	echo " " >/dev/null 2>&1; else
 	cp "${files[@]}" "$stagingdir" 2>/dev/null
@@ -2020,7 +1899,7 @@ fi
 	--field="QRMin":NUM \
 		'100!0..100!0.000001!6'))
 
-	if [ $? -eq 0 ]; then
+	ret=$?; if [ $ret -eq 0 ]; then
     	qrmin="${values[0]}"
     	qrmax="${values[1]}"
 	fi
@@ -2129,7 +2008,7 @@ fi
 	if [[ "$radius" != 0.000000 || "$amount" != 0.000000 ]] && [ "$flat" = "TRUE" ]; then
 
 # Select noise reduction parameters for light frames
-	values=($(yad --form --center --width=300 --window-icon=$wicon --title="$title - Noise reduction warning $name" --separator=' ' \
+	values=`yad --form --center --width=300 --window-icon=$wicon --title="$title - Noise reduction warning $name" --separator=' ' \
 	--button=Skip:1 \
 	--button=Apply:0 \
 	--text="Noise reduction is selected and has been applied to your flat frames.
@@ -2137,9 +2016,9 @@ Please select the noise reduction parameters for your light frames?" \
 	--field="Noise - radius":NUM \
 		'0!0..30!1!0' \
 	--field="Noise - amount":NUM \
-		'0!0..5!0.01!2'))
+		'0!0..5!0.01!2'`
 
-	if [ $? -eq 0 ]; then
+	ret=$?; if [ $ret -eq 0 ]; then
     	radius="${values[0]}"
     	amount="${values[1]}"
 	fi
@@ -2204,7 +2083,7 @@ fi
 
 yad --question --width=300 --window-icon=$wicon --title="$title - Stack $name" --text="Stack result OK" --button=No:1 --button=Yes:0 2>/dev/null
 
-	if [ $? = 0 ]; then
+	ret=$?; if [ $ret = 0 ]; then
 	mv -f stack_*.tif $directory
 	echo " " >/dev/null 2>&1; else
 
@@ -2268,7 +2147,7 @@ fi
 # copy image extract luminance - combine with integrated image - delete copy
 yad --question --width=300 --window-icon=$wicon --title="$title - Create LRGB L* $name" --text="Create LRGB frames and L* mask" --button=No:1 --button=Yes:0 2>/dev/null
 
-	if [ $? = 1 ]; then
+	ret=$?; if [ $ret = 1 ]; then
 	echo " " >/dev/null 2>&1; else
 	createDirIfNeeded $llrgbdir
 

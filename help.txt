@@ -13,13 +13,23 @@ HOMEPAGE
 
 Visit the Asterism homepage at - http://synergous.com/txtpat/articles/2/asterism-astronomical-image-processing-in-linux
 
-NOTES
+-----------------------------------------------------------------------------------------------------------------------------------------
 
-The documentation tab is empty if Asterism is installed using the INSTALLER script. The install version of the Asterism script is found in the INSTALL folder.
+NOTES - Installation and running Asterism
 
-It is easier safer and more reliable to extract the Asterism folder to the user's home directory and run Asterism either by using the RUN script or by opening a terminal in the Asterism folder and type ./asterism or bash -x ./asterism followed by Enter (for those new to Linux scripts and terminals)
+The programs yad dcraw imagemagick and hugin-tools must be installed - hugin macrofusion and enfuse are optional.
+
+Having extracted the Asterism folder to the user's home directory (use the archive manager) go into the Asterism folder and start Asterism with RUN. This will create an applications menu entry and optional desktop link / icon
+
+Alternatively, open a terminal in the Asterism folder and type - bash -x ./asterism - followed by Enter (for those new to Linux scripts and terminals). This will prompt for a menu and desktop entry.
+
+------------------------------------------------------------------------------------------------------------------------------------------
 
 VERSION HISTORY
+
+0.1.3.5
+
+Removed installation candidate - first time use execute asterism using RUN to create an applications menu entry and optional desktop link / icon
 
 0.1.3.4
 
