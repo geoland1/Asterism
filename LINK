@@ -36,6 +36,18 @@
   	exit 1  # fail
 fi
 
+# create directory (if needed) helper function
+	function createDirIfNeeded ()
+	{
+	if [ -d $1 ]
+	then
+		echo " " >/dev/null 2>&1
+	else
+		echo "		Create $1 folder"
+	mkdir $1
+	fi
+	}
+
 # set up path working directory and icon image - edit generated fields if necessary
 	link="Exec=bash -x "$MYPATH"/asterism"
 
@@ -71,12 +83,13 @@ yad --center --width=300 --title="Application Menu Entry" --window-icon=$wicon -
 	--field="Comment" \
 		'Comment[en_AU]=Launch Asterism' | awk 'BEGIN { FS = ":" } ; { print $0 }' > Asterism.desktop
 
-# cp Asterism.desktop link to desktop
+# cp Asterism.desktop link to desktop and application menu
 
 	ret=$?
 
 	if [ $ret = 0 ]; then
 	chmod +x Asterism.desktop
+    	createDirIfNeeded  ~/.local/share/applications
 	cp Asterism.desktop ~/.local/share/applications
 	fi
 
