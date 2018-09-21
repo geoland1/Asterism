@@ -390,7 +390,7 @@ $space		Source Files $source 	$vendor
 		--field="<b>Colour - deBayer options</b>":BTN \
 			'' \
 		--field="DeBayer":CB \
-			'BILINEAR!MALVAR!SUPERPIXEL' \
+			'SUPERPIXEL!BILINEAR!MALVAR' \
 		--field="Bayer matrix":CB \
 			'RGGB!BGGR!GRBG!GBRG' \
 		--field="No selection":BTN \
