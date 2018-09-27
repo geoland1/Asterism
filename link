@@ -1,0 +1,116 @@
+#!/bin/bash
+
+# Generate Asterism.desktop link 
+
+# Asterism - An astronomical exposure reduction image stacking method - for consumer digital cameras 
+#   Copyright (C) 2015 - 2017 Rowland Cheshire
+
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>
+
+# no AT bridge
+	export NO_AT_BRIDGE=1
+
+# get path to asterism
+	MYPATH="`dirname \"$0\"`"           	# relative
+	MYPATH="`( cd \"$MYPATH\" && pwd )`"  	# absolutized and normalized
+	if [ -z "$MYPATH" ] ; then
+# error; for some reason, the path is not accessible
+# to the script (e.g. permissions re-evaled after suid)
+  	exit 1  # fail
+fi
+
+# location of yad window icon
+	if [ -e ~/Asterism/utils/AsterismLOGOs.png ]; then
+	wicon=$(readlink -f ~/Asterism/utils/AsterismLOGOs.png)
+	fi
+
+# create directory (if needed) helper function
+	function createDirIfNeeded ()
+	{
+	if [ -d $1 ]
+	then
+		echo " " >/dev/null 2>&1
+	else
+		echo "		Create $1 folder"
+	mkdir $1
+	fi
+	}
+
+# set up path working directory and icon image - edit generated fields if necessary
+	link="Exec=bash -x "$MYPATH"/asterism"
+
+	workdir=Path="$MYPATH"
+
+	image=Icon="$MYPATH"/utils/AsterismLOGOsplash.png
+
+yad --center --width=300 --title="Application Menu Entry" --window-icon=$wicon --separator='\n' \
+	--button="Remove - Skip":1 \
+	--button=Apply:0 \
+	--text="Set up applications menu" \
+	--form \
+	--field="Header":RO \
+		'[Desktop Entry]' \
+	--field="Encoding":RO \
+		'Encoding=UTF-8' \
+	--field="Name":RO \
+		'Name=Asterism' \
+	--field="Comment" \
+		'Comment=Launch' \
+	--field="Exec" \
+		"$link" \
+	--field="Path":RO \
+		"$workdir" \
+	--field="Icon" \
+		"$image" \
+	--field="Type":RO \
+		'Type=Application' \
+	--field="Name" \
+		'Name[en_AU]=Asterism' \
+	--field="GenericName" \
+		'GenericName[en_AU]=Astronomical Image Processing' \
+	--field="Comment" \
+		'Comment[en_AU]=Launch Asterism' | awk 'BEGIN { FS = ":" } ; { print $0 }' > Asterism.desktop
+
+# cp Asterism.desktop link to desktop and application menu
+
+	ret=$?
+
+	if [ $ret = 0 ]; then
+	chmod +x Asterism.desktop
+    	createDirIfNeeded  ~/.local/share/applications
+	cp Asterism.desktop ~/.local/share/applications
+	else
+	if [ -e ~/.local/share/applications/Asterism.desktop ]; then
+	rm -f ~/.local/share/applications/Asterism.desktop
+	fi
+fi
+
+# create desktop link
+	yad --question --width=300 --title="Desktop link" --window-icon=$wicon \
+	--text="Create Desktop link" \
+	--button="Remove - Skip":1 \
+	--button=Apply:0 \
+
+	ret=$?
+
+	if [ $ret = 0 ]; then
+	chmod +x Asterism.desktop
+	cp Asterism.desktop ~/Desktop
+	else
+	if [ -e ~/Desktop/Asterism.desktop ]; then
+	rm -f ~/Desktop/Asterism.desktop 
+	fi
+fi
+	
+exit
