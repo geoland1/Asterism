@@ -12,8 +12,8 @@ Asterism uses image manipulation programs common to most Linux distributions and
 
 Primarily intented for RAW image data acquired with consumer digital cameras, Asterism handles fits tiff png jpeg and many other image formats. 
 
-A user manual is available at http://synergous.com/txtpat/files/asterism_user_manual_new.html
-RAW files are available to download from Dropbox to experiment with Asterism - three of each, bias dark, flat and light frames, ~10mb each.
-https://www.dropbox.com/sh/x9lyinxoaq0i62t/AADUuHgeogxYJOr5hnot1Njca?dl=0
+A user manual is available [url=http://synergous.com/txtpat/files/asterism_user_manual_new.html]here[/url
+RAW files to experiment with Asterism - three of each, bias dark, flat and light frames ~10mb each - 
+[url=https://www.dropbox.com/sh/x9lyinxoaq0i62t/AADUuHgeogxYJOr5hnot1Njca?dl=0]here[/url]
 
 Note: Summarising - Asterism creates master calibration frames and performs bias dark and flat frame image reduction, deBayering, image aligment and stacking. There are various modes and processing pathways for cooled cameras and stock standard consumer digital cameras, including the colour boost application of manufacturer RGB image matrix multipliers. Optional, noise reduction methods make use of the ImageMagick min max pixel value / within quantum range routine, the -mean-shift process and indirectly, polynomial image stacking.
