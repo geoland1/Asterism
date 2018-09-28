@@ -1625,6 +1625,10 @@ fi
 
 	cd $processdir
 
+# get number of files in folder
+	nfiles=$(ls 2>/dev/null -Ubad1 -- * | wc -l)
+	nfiles=$(("$nfiles" - 1))
+
 	createDirIfNeeded B
 	createDirIfNeeded G
 	createDirIfNeeded g
@@ -1650,11 +1654,13 @@ fi
 	for i in `ls -v *.miff`; do convert "$i" -depth $depth -roll +1+1 -sample 50% R/"$((x++)).miff";done
 
 	x=(0)
-	for ((R=0,G=0,g=0,B=0;R<=101;R+=1,G+=1,g+=1,B+=1)); do
+	for ((R=0,G=0,g=0,B=0;R<="$nfiles";R+=1,G+=1,g+=1,B+=1)); do
 
 	convert R/$R.miff G/$G.miff g/$g.miff B/$B.miff -depth $depth -colorspace sRGB -combine "$((x++))_$name.tiff"
 	
 	done
+
+	rm -f -R B G g R
 
 	for i in `ls -v *.tiff`; do mogrify -alpha off $i;done
 
@@ -1824,7 +1830,8 @@ fi
 	echo ""
 
 # number of images in folder
-	f=$(find . -maxdepth 1 -type f | wc -l)
+#	f=$(find . -maxdepth 1 -type f | wc -l)
+	f=$(ls 2>/dev/null -Ubad1 -- * | wc -l)
 
 # poly weight image set
 	w=$(echo "scale=6; 1/$f" | bc)
