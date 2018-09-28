@@ -53,7 +53,7 @@ fi
 	DESKTOP=$DESKTOP_SESSION
 
 # Asterism version
-	Asterism_version=$'Asterism_0.1.3.9'
+	Asterism_version=$'Asterism_0.1.4.0'
 
 # title
 	title='Asterism'
@@ -101,8 +101,8 @@ fi
 	fi
 
 # location of help file
-	if [ -e $MYPATH/help.txt ]; then
-	help=$(readlink -f $MYPATH/help.txt)
+	if [ -e $MYPATH/utils/help.txt ]; then
+	help=$(readlink -f $MYPATH/utils/help.txt)
 	fi
 
 # location of splash image
@@ -226,7 +226,6 @@ fi
 # documentation tab
 	yad --plug=$key --tabnum=7 --text-info < $help --show-uri \
 		--fontname="Georgia 11" \
-		--filename=help.txt \
 		--wrap \
 		--justify=fill \
 		--margins=10 \
