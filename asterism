@@ -157,7 +157,7 @@ fi
 # yad error function
 	function yadError ()
 	{
-	(( $? != 0 )) && yad --error --text="Error in yad command"
+	ret=$?; (( $ret != 0 )) && yad --error --text="Error in yad command"
 	}
 
 # mean stack function
@@ -449,7 +449,7 @@ yad --notebook --key=$key --center --tab="<b>Process and options</b>" --tab="<b>
 		Ransac $ransac - HFOV $hfov - Mask $mask - Cache $cache
 		DeBayer only $demos"
 
-	# imagemagick in-built resources - processing threads and memory allocation
+# imagemagick in-built resources - processing threads and memory allocation
 	{ IFS=":" read processors threads memory memlimit; } < $syslog	
 	
 	export MAGICK_THREAD_LIMIT=$threads
@@ -1670,8 +1670,7 @@ fi
   		--pulsate \
   		--auto-close \
   		--auto-kill		
-
-	(( $? != 0 )) && yad --error --text="Error in yad command."
+		yadError
 	fi
 fi
 
