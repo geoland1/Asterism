@@ -53,7 +53,7 @@ fi
 	DESKTOP=$DESKTOP_SESSION
 
 # Asterism version
-	Asterism_version=$'Asterism_0.1.4.0'
+	Asterism_version=$'Asterism_0.1.4.1'
 
 # title
 	title='Asterism'
@@ -214,7 +214,7 @@ fi
 	key=$RANDOM
 
 # splash screen
-	yad --no-buttons --undecorated --center --image=$splash --timeout=1 2>/dev/null
+#	yad --no-buttons --undecorated --center --image=$splash --timeout=1 2>/dev/null
 
 # camera list variables
 	cam1=$(awk 'NR==1 { print $1 }' "$cam_list")
@@ -331,6 +331,8 @@ $space		Source Files $source 	$vendor
 			'tif' \
 		--field="<b>Colour depth</b>":CB \
 			'16!8!24!32!48!64!' \
+		--field="<b>Master frames</b>":BTN \
+			'' \
 		--field="Map defects":CHK \
 			'TRUE!FALSE' \
 		--field="Bias frames":CHK \
@@ -347,16 +349,14 @@ $space		Source Files $source 	$vendor
 			'TRUE!FALSE' \
 		--field="- Median":CHK \
 			'TRUE!FALSE' \
-		--field="Flat correction":NUM \
-			'5!0..10!0.1!1' \
+		--field="<b>Image reduction</b>":BTN \
+			'' \
 		--field="Light frames":CHK \
 			'TRUE!FALSE' \
 		--field="- DeBayer Align Stack":CHK \
 			'TRUE!FALSE' \
 		--field="- Develop preview":CHK \
 			'TRUE!FALSE' \
-		--field="<b>Master frames</b>":BTN \
-			'' \
 		--field="Defect map":FL \
 			'-' \
 		--field="Master bias":FL \
@@ -381,8 +381,6 @@ $space		Source Files $source 	$vendor
 			'SUPERPIXEL!BILINEAR!MALVAR' \
 		--field="Bayer matrix":CB \
 			'RGGB!BGGR!GRBG!GBRG' \
-		--field="No selection":BTN \
-			'' \
 		--field="<b>Align and stack options</b>":BTN \
 			'' \
 		--field="Interface":CB \
@@ -400,7 +398,9 @@ $space		Source Files $source 	$vendor
 		--field="Mask":CB \
 			'NONE!SOFT!HARD' \
 		--field="Cache":NUM \
-			'4096' | awk 'BEGIN { FS = ":" } ; { print $0 }' > $log | &> res1 &
+			'4096' \
+		--field="Flat correction":NUM \
+			'5!0..10!0.1!1' > $log | &> res1 &
 
 # run main notebook dialog
 yad --notebook --key=$key --center --tab="<b>Process and options</b>" --tab="<b>Select camera matrix</b>" --tab="<b>Add camera matrix</b>" --tab="<b>Edit camera list</b>" --tab="<b>Project details</b>" --tab="<b>System settings</b>" --tab="<b>Documentation</b>" \
@@ -429,7 +429,7 @@ yad --notebook --key=$key --center --tab="<b>Process and options</b>" --tab="<b>
 	echo " " >/dev/null 2>&1
 	fi
 
-{ IFS=':' read directory raw format depth defect bias superbias medbias dark meddark flat medflat autof light process develop blank1 defectmap masterbias masterdark masterflat blank2 radius amount qrmax qrmin blank3 debayer matrix demosaic blank4 interface cpoint stack blank5 ransac hfov mask cache; } < $log
+{ IFS=':' read directory raw format depth blank1 defect bias superbias medbias dark meddark flat medflat blank2 light process develop defectmap masterbias masterdark masterflat blank3 radius amount qrmax qrmin blank4 debayer matrix blank5 interface cpoint stack blank6 ransac hfov mask cache autof; } < $log
 
 # get the project name from the project directory
 
@@ -440,14 +440,14 @@ yad --notebook --key=$key --center --tab="<b>Process and options</b>" --tab="<b>
 		Map defects $defect
 		Bias frames $bias - Superbias $superbias - Median bias $medbias
 		Dark frames $dark - Median dark $meddark
-		Flat frames $flat - Median flat $medflat - Flat correction $autof
+		Flat frames $flat - Median flat $medflat - 
 		Light frames $light - Process $process - Extract background $develop
 		Defect map $defectmap - Master bias $masterbias - Master dark $masterdark - Master flat $masterflat 
 		Radius $radius - Amount $amount - QRMax $qrmax - QRMin $qrmin 
 		Debayer $debayer - Matrix $matrix 
 		Interface $interface - Align $cpoint - Stack $stack  
 		Ransac $ransac - HFOV $hfov - Mask $mask - Cache $cache
-		DeBayer only $demos"
+		Flat correction $autof"
 
 # imagemagick in-built resources - processing threads and memory allocation
 	{ IFS=":" read processors threads memory memlimit; } < $syslog	
@@ -1919,26 +1919,20 @@ fi
 fi
 
 # mean shift noise reduction
-	if [ "$radius" = 0.000000 ] && [ "$amount" = 0.000000 ]; then
-	echo " " >/dev/null 2>&1; else
+	if [[ "$radius" > 0 || "$amount" > 0.00 ]]; then
 
-	if [[ "$radius" != 0.000000 || "$amount" != 0.000000 ]] && [ "$flat" = "TRUE" ]; then
-
-# Select noise reduction parameters for light frames
-	values=`yad --form --center --width=300 --window-icon=$wicon --title="$title - Noise reduction warning $name" --separator=' ' \
+# Confirm noise reduction parameters for light frames
+	values=`yad --form --center --width=400 --window-icon=$wicon --title="$title - Noise reduction warning $name" --separator=' ' \
 	--button=Skip:1 \
 	--button=Apply:0 \
-	--text="Noise reduction is selected and has been applied to your flat frames.
-Please select the noise reduction parameters for your light frames?" \
+	--text="Noise reduction is selected and may have been applied to your flat frames.
+Please select the noise reduction parameters for your light frames or skip this process?" \
 	--field="Noise - radius":NUM \
-		'0!0..30!1!0' \
+		"$radius"!0..30!1!0 \
 	--field="Noise - amount":NUM \
-		'0!0..5!0.01!2'`
+		"$amount"!0..5!0.01!2`
 
 	ret=$?; if [ $ret -eq 0 ]; then
-    	radius="${values[0]}"
-    	amount="${values[1]}"
-	fi
 
 	text=$(echo "Noise reduction")
 
@@ -1986,16 +1980,23 @@ fi
 	yadError
 fi
 
+# resize and display develop preview
+	if [ "$debayer" = "SUPERPIXEL" ]; then
+	view=50
+	else
+	view=25
+	fi
+
 	if [ ! -e "stack_devel_$name.tif" ]; then
 	echo " " >/dev/null 2>&1; else
-	display -resize 25% stack_devel_$name.tif
+	display -resize $view% stack_devel_$name.tif
 	fi
 
 # display stack result
 	if [ ! -e "stack_$name.tif" ]; then
 	echo " " >/dev/null 2>&1; else
 	echo "		Display stack result"
-	display -resize 25% -verbose -alpha off stack_$name.tif
+	display -resize $view% -verbose -alpha off stack_$name.tif
 	fi
 
 yad --question --width=300 --window-icon=$wicon --title="$title - Stack $name" --text="Stack result OK" --button=No:1 --button=Yes:0 2>/dev/null
