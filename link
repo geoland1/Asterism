@@ -80,7 +80,7 @@ yad --center --width=300 --title="Application Menu Entry" --window-icon=$wicon -
 	--field="GenericName" \
 		'GenericName[en_AU]=Astronomical Image Processing' \
 	--field="Comment" \
-		'Comment[en_AU]=Launch Asterism' | awk 'BEGIN { FS = ":" } ; { print $0 }' > Asterism.desktop
+		'Comment[en_AU]=Launch Asterism' > Asterism.desktop
 
 # cp Asterism.desktop link to desktop and application menu
 
@@ -93,6 +93,7 @@ yad --center --width=300 --title="Application Menu Entry" --window-icon=$wicon -
 	else
 	if [ -e ~/.local/share/applications/Asterism.desktop ]; then
 	rm -f ~/.local/share/applications/Asterism.desktop
+	find ~/.local/share/applications -maxdepth 1 -size 0 -print0 |xargs -0 rm --
 	fi
 fi
 
@@ -109,8 +110,11 @@ fi
 	cp Asterism.desktop ~/Desktop
 	else
 	if [ -e ~/Desktop/Asterism.desktop ]; then
-	rm -f ~/Desktop/Asterism.desktop 
+	rm -f ~/Desktop/Asterism.desktop
+	rm -f $MYPATH/Asterism.desktop
 	fi
 fi
+
+	find . -maxdepth 1 -size 0 -print0 |xargs -0 rm --
 	
 exit
