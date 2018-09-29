@@ -13,7 +13,7 @@
 		--field="Green":NUM \
 			'0.95!0.1..10!0.001!3' \
 		--field="Blue":NUM \
-			'1.000!0.1..10!0.001!3' | awk 'BEGIN { FS = ":" } ; { print $0 }' > $log 2>/dev/null
+			'1.000!0.1..10!0.001!3' > $log 2>/dev/null
 
 # run quit gamma.sh
 	if [[ $? = 1 || $? = 252 ]]; then
@@ -21,9 +21,7 @@
 	echo " " >/dev/null 2>&1
 	fi
 
-	r=$(awk 'BEGIN { FS = ":" } ; { print $1 }' r=$1 $log)
-	g=$(awk 'BEGIN { FS = ":" } ; { print $2 }' g=$2 $log)
-	b=$(awk 'BEGIN { FS = ":" } ; { print $3 }' b=$3 $log)
+	{ IFS=":" read r g b; } < $log
 
 	echo $r $g $b
 
@@ -31,8 +29,8 @@
 	gre=$(echo "scale=3; $g" | bc)
 	blu=$(echo "scale=3; $b" | bc)
 
-	echo $red $gre $blu
+	echo $red $grn $blu
 
-	xgamma -rgamma $red -ggamma $gre -bgamma $blu
+	xgamma -rgamma $red -ggamma $grn -bgamma $blu
 
 exit

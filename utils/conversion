@@ -108,12 +108,9 @@ fi
 		--field="Output format" \
 			'tiff' \
 		--field="Bit depth":NUM \
-			'16!8..32!8!1' | awk 'BEGIN { FS = ":" } ; { print $0 }' > $log
+			'16!8..32!8!1' > $log
 
-	size=$(awk 'BEGIN { FS = ":" } ; { print $1 }' size=$1 $log)
-	raw=$(awk 'BEGIN { FS = ":" } ; { print $2 }' raw=$2 $log)
-	format=$(awk 'BEGIN { FS = ":" } ; { print $3 }' format=$3 $log)
-	depth=$(awk 'BEGIN { FS = ":" } ; { print $4 }' depth=$4 $log)
+	{ IFS=":" read size raw format depth; } < $log
 
 	echo "		Resolution = $size RAW = $raw Format = $format Depth = $depth"
 	

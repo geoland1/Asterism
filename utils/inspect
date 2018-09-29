@@ -112,7 +112,7 @@ fi
 		--field="RAW files":CHK \
 			'TRUE!FALSE' \
 		--field="Remove previews":CHK \
-			'TRUE!FALSE' | awk 'BEGIN { FS = ":" } ; { print $0 }' > $log 
+			'TRUE!FALSE' > $log 
 	
 # run quit inspector
 	if [[ $? = 1 || $? = 252 ]]; then
@@ -121,9 +121,7 @@ fi
 	echo " " >/dev/null 2>&1
 	fi
 	
-	preview=$(awk 'BEGIN { FS = ":" } ; { print $1 }' preview=$1 $log)
-	raw=$(awk 'BEGIN { FS = ":" } ; { print $2 }' raw=$2 $log)
-	remove=$(awk 'BEGIN { FS = ":" } ; { print $3 }' remove=$3 $log)
+	{ IFS=":" read preview raw remove; } < $log
 	
 
 	echo "		RAW $raw

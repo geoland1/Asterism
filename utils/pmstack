@@ -147,7 +147,7 @@ fi
 		--field="Sharpen":NUM \
 			'0.5!0..3!0.01!2' \
 		--field="Do noise reduction in the generated image":BTN \
-			'' | awk 'BEGIN { FS = ":" } ; { print $0 }' > $devellog | &> res1 &
+			'' > $devellog | &> res1 &
 
 # PMStack tab
 	yad --plug=$key --tabnum=1 --form --separator=':' --columns=1 \
@@ -179,7 +179,7 @@ fi
 		--field="HFOV" \
 			'8' \
 		--field="Cache" \
-			'4096' | awk 'BEGIN { FS = ":" } ; { print $0 }' > $log | &> res1 &
+			'4096' > $log | &> res1 &
 
 # run main notebook dialog
 	yad --notebook --key=$key --center --tab="<b>PMStack</b>" --tab="<b>Develop</b>" \
@@ -197,34 +197,11 @@ fi
 	echo " " >/dev/null 2>&1
 	fi
 	
-	noalign=$(awk 'BEGIN { FS = ":" } ; { print $1 }' noalign=$1 $log)
-	devel=$(awk 'BEGIN { FS = ":" } ; { print $2 }' devel=$2 $log)
-	pmlog=$(awk 'BEGIN { FS = ":" } ; { print $3 }' pmlog=$3 $log)
-	ext=$(awk 'BEGIN { FS = ":" } ; { print $4 }' ext=$4 $log)
-	ransac=$(awk 'BEGIN { FS = ":" } ; { print $5 }' ransac=$5 $log)
-	cpoint=$(awk 'BEGIN { FS = ":" } ; { print $6 }' cpoint=$6 $log)
-	stack=$(awk 'BEGIN { FS = ":" } ; { print $7 }' stack=$7 $log)
-	radius=$(awk 'BEGIN { FS = ":" } ; { print $8 }' radius=$8 $log)
-	spread=$(awk 'BEGIN { FS = ":" } ; { print $9 }' spread=$9 $log)
-	clipmax=$(awk 'BEGIN { FS = ":" } ; { print $10 }' clipmax=$10 $log)
-	clipmin=$(awk 'BEGIN { FS = ":" } ; { print $11 }' clipmin=$11 $log)	
-	mask=$(awk 'BEGIN { FS = ":" } ; { print $12 }' mask=$12 $log)
-	hfov=$(awk 'BEGIN { FS = ":" } ; { print $13 }' hfov=$13 $log)
-	cache=$(awk 'BEGIN { FS = ":" } ; { print $14 }' cache=$14 $log)
+	{ IFS=":" read noalign devel pmlog ext ransac cpoint stack radius spread clipmax clipmin mask hfov cache; } < $log
 
 	echo $pmlog $devel $noalign $ext $ransac $cpoint $stack $radius $spread $clipmax $clipmin $mask $hfov $cache
 
-	image=$(awk 'BEGIN { FS = ":" } ; { print $1 }' image=$1 $devellog)
-	depth=$(awk 'BEGIN { FS = ":" } ; { print $2 }' depth=$2 $devellog)
-	chan=$(awk 'BEGIN { FS = ":" } ; { print $3 }' chan=$3 $devellog)
-	cbal=$(awk 'BEGIN { FS = ":" } ; { print $4 }' cbal=$4 $devellog)
-	gamma=$(awk 'BEGIN { FS = ":" } ; { print $5 }' gamma=$5 $devellog)
-	sat=$(awk 'BEGIN { FS = ":" } ; { print $6 }' sat=$6 $devellog)
-	bright=$(awk 'BEGIN { FS = ":" } ; { print $7 }' bright=$7 $devellog)
-	hue=$(awk 'BEGIN { FS = ":" } ; { print $8 }' hue=$8 $devellog)
-	sharp=$(awk 'BEGIN { FS = ":" } ; { print $9 }' sharp=$9 $devellog)
-	button=$(awk 'BEGIN { FS = ":" } ; { print $10 }' button=$10 $devellog)
-	
+	{ IFS=":" read image depth chan cbal gamma sat bright hue sharp button; } < $devellog	
 
 	echo  $image $depth $chan $cbal $gamma $sat $bright $hue $sharp $button
 
@@ -560,10 +537,6 @@ fi
 	if [ ! -e "stack_devel_$name.tif" ]; then
 	echo " " >/dev/null 2>&1; else
 	display -resize 25% stack_devel_$name.tif 
-	fi
-	
-	if [ ! -e "stack_devel_$name.tif" ]; then
-	echo " " >/dev/null 2>&1; else
 	convert stack_devel_$name.tif -set filename:f '%[t]' -define histogram:unique-colors=false histogram:"%[filename:f].gif"
 	display -resize 200% *.gif
 	fi
