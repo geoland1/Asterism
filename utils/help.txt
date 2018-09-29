@@ -30,6 +30,10 @@ NOTES - Installation and running Asterism
 
 VERSION HISTORY
 
+0.1.4.1
+
+Optimisations
+
 0.1.4.0
 
 move help file to utils folder - declutter source folder
