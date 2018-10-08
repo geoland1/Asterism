@@ -39,8 +39,6 @@
   	exit 1  # fail
 fi
 
-	echo $MYPATH
-
 # location of source files
 #	if [ -e $MYPATH/asterism ]; then
 	source=$(readlink -f $MYPATH)
@@ -53,7 +51,7 @@ fi
 	DESKTOP=$DESKTOP_SESSION
 
 # Asterism version
-	Asterism_version=$'Asterism_0.1.4.2'
+	Asterism_version=$'Asterism_0.1.4.4'
 
 # title
 	title='Asterism'
@@ -378,7 +376,7 @@ $space		Source Files $source 	$vendor
 		--field="<b>Colour - deBayer options</b>":BTN \
 			'' \
 		--field="DeBayer":CB \
-			'SUPERPIXEL!BILINEAR!MALVAR' \
+			'BILINEAR!MALVAR!SUPERPIXEL' \
 		--field="Bayer matrix":CB \
 			'RGGB!BGGR!GRBG!GBRG' \
 		--field="<b>Align and stack options</b>":BTN \
@@ -412,7 +410,6 @@ yad --notebook --key=$key --center --tab="<b>Process and options</b>" --tab="<b>
 		--buttons-layout=spread \
 		--button=Quit:1 \
 		--button='Files:bash -c "yad --file --center --save --title="Files" --height=600 --width=450"' \
-		--button='Monitor:bash -c "./utils/gamma.sh"' \
 		--button='Convert:bash -c "./utils/conversion"' \
 		--button='Inspect:bash -c "./utils/inspect"' \
 		--button='PMStack:bash -c "./utils/pmstack"' \
@@ -458,7 +455,7 @@ yad --notebook --key=$key --center --tab="<b>Process and options</b>" --tab="<b>
 
 	export MAGICK_MEMORY_LIMIT=$magickmem'MiB'
 
-	((maplimit=$sysmem/4))
+	((maplimit=$sysmem/2))
 
 	export MAGICK_MAP_LIMIT=$maplimit'MiB'
 
@@ -595,7 +592,6 @@ fi
 	processdir=$imagedir/process_$name
 	debaydir=$imagedir/process_$name/debayer_$name
 	
-
 # look for dcraw RAW convertor
 	if [[ -x /usr/bin/dcraw || -x /usr/local/bin/dcraw ]]; then
 	echo " " >/dev/null 2>&1;
@@ -746,7 +742,7 @@ exit
 
 fi
 
-	if [ "$light" = "TRUE" ] && [ "$defect" != "TRUE" ] && [ ! -e "$defectmap" ] && [ "$bias" != "TRUE" ] && [ ! -e "$masterbias" ] && [ "$dark" != "TRUE" ] && [ ! -e "$masterdark" ] && [ "$flat" != "TRUE" ] && [ ! -e "$masterflat" ]; then
+if [ "$light" = "TRUE" ] && [ "$defect" != "TRUE" ] && [ ! -e "$defectmap" ] && [ "$bias" != "TRUE" ] && [ ! -e "$masterbias" ] && [ "$dark" != "TRUE" ] && [ ! -e "$masterdark" ] && [ "$flat" != "TRUE" ] && [ ! -e "$masterflat" ]; then
 
 	yad --info --center \
   	--title="$title - Master frame selection warning - $name" \
@@ -940,8 +936,8 @@ fi
 	echo " " >/dev/null 2>&1; else
 	(
 	echo ""
-for i in `ls -v ${files[@]}`;do dcraw -4 -o 0 -r 1 1 1 1 -D -t 0 -k 0 -H 1 -T $i;done 
-convert $imagedir/*.tiff -depth $depth -evaluate-sequence $calstack -evaluate max $qrmax% -evaluate min $qrmin% $stagingdir/MBIAS.miff >/dev/null 2>&1
+	for i in `ls -v ${files[@]}`;do dcraw -4 -o 0 -r 1 1 1 1 -D -t 0 -k 0 -H 1 -T $i;done 
+	convert $imagedir/*.tiff -depth $depth -evaluate-sequence $calstack -evaluate max $qrmax% -evaluate min $qrmin% $stagingdir/MBIAS.miff >/dev/null 2>&1
 	 rm -f $imagedir/*.tiff
 	) |
 	yadProgress	
@@ -1083,8 +1079,8 @@ fi
 	echo " " >/dev/null 2>&1; else
 	(
 	echo ""
-for i in `ls -v ${files[@]}`;do dcraw -4 -o 0 -r 1 1 1 1 -D -t 0 -k 0 -H 1 -T $i; done
-convert $imagedir/*.tiff -depth $depth -evaluate-sequence $calstack -evaluate max $qrmax% -evaluate min $qrmin% $stagingdir/MDARK.miff >/dev/null 2>&1	
+	for i in `ls -v ${files[@]}`;do dcraw -4 -o 0 -r 1 1 1 1 -D -t 0 -k 0 -H 1 -T $i; done
+	convert $imagedir/*.tiff -depth $depth -evaluate-sequence $calstack -evaluate max $qrmax% -evaluate min $qrmin% $stagingdir/MDARK.miff >/dev/null 2>&1	
 	rm -f $imagedir/*.tiff
 	) |
 	yadProgress	
@@ -1276,7 +1272,7 @@ fi
 	(
 	echo ""
 
-convert $tmpfdir/*.miff -evaluate-sequence $calstack -evaluate max $qrmax% -evaluate min $qrmin% -mean-shift "$radius"x"$radius"+"$amount"% $stagingdir/MFLAT.miff >/dev/null 2>&1
+	convert $tmpfdir/*.miff -evaluate-sequence $calstack -evaluate max $qrmax% -evaluate min $qrmin% -mean-shift "$radius"x"$radius"+"$amount"% $stagingdir/MFLAT.miff >/dev/null 2>&1
 	) |
 	yadProgress		
 	yadError
@@ -1719,7 +1715,7 @@ fi
 	echo ""
 	x=(0)
 	for i in `ls -v *.tiff`; do $source/utils/$dmdebayer -p $matrix $i $((x++))_$name.tiff;done
-	for i in `ls -v *.tiff`; do mogrify -alpha off $i;done
+#	for i in `ls -v *.tiff`; do mogrify -alpha off $i; done
 	) |
 	yadProgress
 	yadError
