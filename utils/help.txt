@@ -8,7 +8,7 @@ On-line version - http://synergous.com/txtpat/files/asterism_user_manual_new.htm
 Hugin usage video - http://synergous.com/txtpat/files/icapshugin.m4v.zip
 
 HOMEPAGE - http://synergous.com/txtpat/articles/2/asterism-astronomical-image-processing-in-linux
-----------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------
 
 NOTES - Installation and running Asterism
 
@@ -29,14 +29,6 @@ NOTES - Installation and running Asterism
 ---------------------------------------------------------------------------------------------------------------------------------
 
 VERSION HISTORY
-
-0.1.4.5
-
-Redefinition of Super-bias process
-
-0.1.4.4
-
-Optimizations
 
 0.1.4.3
 
@@ -607,5 +599,3 @@ System stack options
 LRGB L* extraction process
 Super-bias
 RGB Channel multiplier matrix
-
-
