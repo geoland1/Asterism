@@ -26,9 +26,21 @@ NOTES - Installation and running Asterism
 
 	Note: use SETUP to remove the menu entry and / or desktop link
 
-------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------
 
 VERSION HISTORY
+
+0.1.4.5
+
+Redefinition of Super-bias process
+
+0.1.4.4
+
+Optimizations
+
+0.1.4.3
+
+Optimizations
 
 0.1.4.2
 
