@@ -51,7 +51,7 @@ fi
 	DESKTOP=$DESKTOP_SESSION
 
 # Asterism version
-	Asterism_version=$'Asterism_0.1.4.4'
+	Asterism_version=$'Asterism_0.1.4.5'
 
 # title
 	title='Asterism'
@@ -971,8 +971,7 @@ fi
 	echo "		Create super-bias ~1 minute..."
 	(
 	echo ""
-#	convert $stagingdir/MBIAS.miff -mean-shift 7x7+0.1% $stagingdir/MBIAS_super.miff >/dev/null 2>&1
-	$denoise -m median -f 15 $stagingdir/MBIAS.miff $stagingdir/MBIAS_super.miff
+	convert $stagingdir/MBIAS.miff -mean-shift 7x7+0.1% $stagingdir/MBIAS_super.miff >/dev/null 2>&1
 	)|
 	yadProgress
 	yadError
