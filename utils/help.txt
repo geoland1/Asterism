@@ -8,11 +8,11 @@ On-line version - http://synergous.com/txtpat/files/asterism_user_manual_new.htm
 Hugin usage video - http://synergous.com/txtpat/files/icapshugin.m4v.zip
 
 HOMEPAGE - http://synergous.com/txtpat/articles/2/asterism-astronomical-image-processing-in-linux
----------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------
 
 NOTES - Installation and running Asterism
 
-1. The programs yad dcraw imagemagick and hugin-tools must be installed - hugin macrofusion and enfuse are optional.
+1. The programs, yad dcraw imagemagick and hugin-tools must be installed - hugin macrofusion and enfuse are optional.
 
 2. Download the source asterism.zip file and extract the Asterism folder to the user's home directory (e.g., with an archive manager)
 
@@ -20,15 +20,19 @@ NOTES - Installation and running Asterism
 
 4. Launch Asterism with RUN; alternatively if you don't want to run binaries
 
-5. open a terminal in the Asterism folder and type 'bash -x ./asterism' Enter - without the quotes 
+5. Open a terminal in the Asterism folder and type 'bash -x ./asterism' Enter - without the quotes 
 
 	Note: open a terminal anywhere and cd into the Asterism folder or type the path to asterism - ~/Asterism/asterism
 
 	Note: use SETUP to remove the menu entry and / or desktop link
 
----------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
 
 VERSION HISTORY
+
+0.1.4.4
+
+Process tab layout
 
 0.1.4.3
 
