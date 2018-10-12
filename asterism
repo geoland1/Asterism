@@ -39,6 +39,8 @@
   	exit 1  # fail
 fi
 
+	echo $MYPATH
+
 # location of source files
 #	if [ -e $MYPATH/asterism ]; then
 	source=$(readlink -f $MYPATH)
@@ -51,7 +53,7 @@ fi
 	DESKTOP=$DESKTOP_SESSION
 
 # Asterism version
-	Asterism_version=$'Asterism_0.1.4.3'
+	Asterism_version=$'Asterism_0.1.4.4'
 
 # title
 	title='Asterism'
@@ -319,7 +321,7 @@ $space		Source Files $source 	$vendor
 
 # preprocessing options tab
 	yad --plug=$key --tabnum=1 --form --separator=':' --columns=3 \
-		--text="<b>Select a project (output) folder process and options</b>
+		--text="<b>Select project (output) folder, processes and options</b>
 		" \
 		--field="<b>Project folder*</b>":DIR \
 			"$noconfig" \
@@ -347,14 +349,8 @@ $space		Source Files $source 	$vendor
 			'TRUE!FALSE' \
 		--field="- Median":CHK \
 			'TRUE!FALSE' \
-		--field="<b>Image reduction</b>":BTN \
-			'' \
-		--field="Light frames":CHK \
-			'TRUE!FALSE' \
-		--field="- DeBayer Align Stack":CHK \
-			'TRUE!FALSE' \
-		--field="- Develop preview":CHK \
-			'TRUE!FALSE' \
+		--field="Flat correction":NUM \
+			'5!0..10!0.1!1' \
 		--field="Defect map":FL \
 			'-' \
 		--field="Master bias":FL \
@@ -363,6 +359,16 @@ $space		Source Files $source 	$vendor
 			'-' \
 		--field="Master flat":FL \
 			'-' \
+		--field="<b>Image reduction</b>":BTN \
+			'' \
+		--field="Light frames":CHK \
+			'TRUE!FALSE' \
+		--field="<b>Image registration</b>":BTN \
+			'' \
+		--field="DeBayer Align Stack":CHK \
+			'TRUE!FALSE' \
+		--field="- Develop preview":CHK \
+			'TRUE!FALSE' \
 		--field="<b>Noise reduction parameters</b>":BTN \
 			'' \
 		--field="Noise - radius":NUM \
@@ -389,16 +395,14 @@ $space		Source Files $source 	$vendor
 			'POLY!MEAN!MEDIAN!ENFUSE' \
 		--field="<b>Alignment settings</b>":BTN \
 			'' \
-		--field="Ransac iterations":NUM \
+		--field="Ransac":NUM \
 			'200' \
 		--field="HFOV":NUM \
 			'8' \
-		--field="Mask":CB \
-			'NONE!SOFT!HARD' \
 		--field="Cache":NUM \
 			'4096' \
-		--field="Flat correction":NUM \
-			'5!0..10!0.1!1' > $log | &> res1 &
+		--field="Mask":CB \
+			'NONE!SOFT!HARD' > $log | &> res1 &
 
 # run main notebook dialog
 yad --notebook --key=$key --center --tab="<b>Process and options</b>" --tab="<b>Select camera matrix</b>" --tab="<b>Add camera matrix</b>" --tab="<b>Edit camera list</b>" --tab="<b>Project details</b>" --tab="<b>System settings</b>" --tab="<b>Documentation</b>" \
@@ -426,25 +430,46 @@ yad --notebook --key=$key --center --tab="<b>Process and options</b>" --tab="<b>
 	echo " " >/dev/null 2>&1
 	fi
 
-{ IFS=':' read directory raw format depth blank1 defect bias superbias medbias dark meddark flat medflat blank2 light process develop defectmap masterbias masterdark masterflat blank3 radius amount qrmax qrmin blank4 debayer matrix blank5 interface cpoint stack blank6 ransac hfov mask cache autof; } < $log
+{ IFS=':' read directory raw format depth blank1 defect bias superbias medbias dark meddark flat medflat autof defectmap masterbias masterdark masterflat blank3 light blank4 process develop blank5 radius amount qrmax qrmin blank6 debayer matrix blank7 interface cpoint stack blank8 ransac hfov cache mask; } < $log
 
 # get the project name from the project directory
 
 	name=$(basename $directory)
 
-	echo " 		Project name $name - Project directory $directory
-		Input format $raw - Output format $format - Depth $depth
+	echo " 		Project name $name
+		Project directory $directory
+		Input format $raw
+		Output format $format
+		Depth $depth
 		Map defects $defect
-		Bias frames $bias - Superbias $superbias - Median bias $medbias
-		Dark frames $dark - Median dark $meddark
-		Flat frames $flat - Median flat $medflat - 
-		Light frames $light - Process $process - Extract background $develop
-		Defect map $defectmap - Master bias $masterbias - Master dark $masterdark - Master flat $masterflat 
-		Radius $radius - Amount $amount - QRMax $qrmax - QRMin $qrmin 
-		Debayer $debayer - Matrix $matrix 
-		Interface $interface - Align $cpoint - Stack $stack  
-		Ransac $ransac - HFOV $hfov - Mask $mask - Cache $cache
-		Flat correction $autof"
+		Bias frames $bias
+		Superbias $superbias
+		Median bias $medbias
+		Dark frames $dark
+		Median dark $meddark
+		Flat frames $flat
+		Median flat $medflat
+		Flat correction $autof
+		Defect map $defectmap
+		Master bias $masterbias
+		Master dark $masterdark
+		Master flat $masterflat
+		Light frames $light
+		Process $process
+		Extract background $develop
+		Radius $radius
+		Amount $amount
+		QRMax $qrmax
+		QRMin $qrmin 
+		Debayer $debayer
+		Matrix $matrix 
+		Interface $interface
+		Align $cpoint
+		Stack $stack  
+		Ransac $ransac
+		HFOV $hfov
+		Cache $cache
+		Mask $mask" 
 
 # imagemagick in-built resources - processing threads and memory allocation
 	{ IFS=":" read processors threads memory memlimit; } < $syslog	
@@ -455,7 +480,7 @@ yad --notebook --key=$key --center --tab="<b>Process and options</b>" --tab="<b>
 
 	export MAGICK_MEMORY_LIMIT=$magickmem'MiB'
 
-	((maplimit=$sysmem/2))
+	((maplimit=$sysmem/4))
 
 	export MAGICK_MAP_LIMIT=$maplimit'MiB'
 
@@ -581,17 +606,18 @@ fi
 fi
 
 # set up paths and other environment variables
-	stagingdir=~/.asterism/staging
-	masterdir=$imagedir/master
 	tmpdir=$imagedir/.tmp
+	masterdir=$imagedir/master
 	tmpfdir=$imagedir/.tmp/tmpf
 	tmpldir=$imagedir/.tmp/tmpl
 	rejectdir=$imagedir/rejects
 	previewdir=$imagedir/.preview
+	stagingdir=~/.asterism/staging
 	llrgbdir=$imagedir/llrgb_$name
 	processdir=$imagedir/process_$name
 	debaydir=$imagedir/process_$name/debayer_$name
 	
+
 # look for dcraw RAW convertor
 	if [[ -x /usr/bin/dcraw || -x /usr/local/bin/dcraw ]]; then
 	echo " " >/dev/null 2>&1;
@@ -742,7 +768,7 @@ exit
 
 fi
 
-if [ "$light" = "TRUE" ] && [ "$defect" != "TRUE" ] && [ ! -e "$defectmap" ] && [ "$bias" != "TRUE" ] && [ ! -e "$masterbias" ] && [ "$dark" != "TRUE" ] && [ ! -e "$masterdark" ] && [ "$flat" != "TRUE" ] && [ ! -e "$masterflat" ]; then
+	if [ "$light" = "TRUE" ] && [ "$defect" != "TRUE" ] && [ ! -e "$defectmap" ] && [ "$bias" != "TRUE" ] && [ ! -e "$masterbias" ] && [ "$dark" != "TRUE" ] && [ ! -e "$masterdark" ] && [ "$flat" != "TRUE" ] && [ ! -e "$masterflat" ]; then
 
 	yad --info --center \
   	--title="$title - Master frame selection warning - $name" \
@@ -1079,8 +1105,8 @@ fi
 	echo " " >/dev/null 2>&1; else
 	(
 	echo ""
-	for i in `ls -v ${files[@]}`;do dcraw -4 -o 0 -r 1 1 1 1 -D -t 0 -k 0 -H 1 -T $i; done
-	convert $imagedir/*.tiff -depth $depth -evaluate-sequence $calstack -evaluate max $qrmax% -evaluate min $qrmin% $stagingdir/MDARK.miff >/dev/null 2>&1	
+for i in `ls -v ${files[@]}`;do dcraw -4 -o 0 -r 1 1 1 1 -D -t 0 -k 0 -H 1 -T $i; done
+convert $imagedir/*.tiff -depth $depth -evaluate-sequence $calstack -evaluate max $qrmax% -evaluate min $qrmin% $stagingdir/MDARK.miff >/dev/null 2>&1	
 	rm -f $imagedir/*.tiff
 	) |
 	yadProgress	
@@ -1272,7 +1298,7 @@ fi
 	(
 	echo ""
 
-	convert $tmpfdir/*.miff -evaluate-sequence $calstack -evaluate max $qrmax% -evaluate min $qrmin% -mean-shift "$radius"x"$radius"+"$amount"% $stagingdir/MFLAT.miff >/dev/null 2>&1
+convert $tmpfdir/*.miff -evaluate-sequence $calstack -evaluate max $qrmax% -evaluate min $qrmin% -mean-shift "$radius"x"$radius"+"$amount"% $stagingdir/MFLAT.miff >/dev/null 2>&1
 	) |
 	yadProgress		
 	yadError
@@ -1715,7 +1741,7 @@ fi
 	echo ""
 	x=(0)
 	for i in `ls -v *.tiff`; do $source/utils/$dmdebayer -p $matrix $i $((x++))_$name.tiff;done
-#	for i in `ls -v *.tiff`; do mogrify -alpha off $i; done
+#	for i in `ls -v *.tiff`; do mogrify -alpha off $i;done
 	) |
 	yadProgress
 	yadError
