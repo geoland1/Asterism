@@ -30,6 +30,10 @@ NOTES - Installation and running Asterism
 
 VERSION HISTORY
 
+0.1.4.5
+
+Colour processing
+
 0.1.4.4
 
 Process tab layout
