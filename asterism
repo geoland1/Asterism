@@ -350,7 +350,7 @@ $space		Source Files $source 	$vendor
 		--field="- Median":CHK \
 			'TRUE!FALSE' \
 		--field="Flat correction":NUM \
-			'60!0..75!0.1!1' \
+			'5!0..75!0.1!1' \
 		--field="Defect map":FL \
 			'-' \
 		--field="Master bias":FL \
