@@ -4,7 +4,7 @@ Image reduction / pre-processing
 
 Version 0.1.3.5 onwards - simplified set-up - no installation or run from terminal required - see documentation.
 
-Note: it may be necessary to do $chmod +x RUN in a terminal in the Asterism-master folder.
+Note: it may be necessary to do $chmod +x RUN SETUP in a terminal in the Asterism-master folder.
 
 Asterism is a Linux image data reduction preprocessing utility, written in Bash. Mainly, with amateur astronomical RAW image data in mind. Not to restrict its application, Asterism may be used to process macro and microscopy images. 
 
