@@ -30,6 +30,10 @@ NOTES - Installation and running Asterism
 
 VERSION HISTORY
 
+0.1.4.8
+
+Fix colour processing align and stack
+
 0.1.4.7
 
 Fix prestack multiplier routine
