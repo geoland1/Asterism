@@ -53,7 +53,7 @@ fi
 	DESKTOP=$DESKTOP_SESSION
 
 # Asterism version
-	Asterism_version=$'Asterism_0.1.4.8'
+	Asterism_version=$'Asterism_0.1.4.9'
 
 # title
 	title='Asterism'
@@ -894,9 +894,13 @@ fi
 	echo "Colour processing"
 	(
 	echo ""
-	for i in `ls -v ${files[@]}`;do dcraw -4 -o 1 $q $DEMOS -t 0 -H 1 -T $i;done
-	for i in `ls -v $imagedir/*.tiff`;do convert $i -depth $depth $processdir/$((x++))_$name.miff;done
+	for i in `ls -v ${files[@]}`; do dcraw -4 -o 1 $q $DEMOS -t 0 -H 1 -T $i; done
+	x=(0)
+	for i in `ls -v $imagedir/*.tiff`; do convert $i $processdir/$((x++))_$name.miff; done
 	rm -f $imagedir/*.tiff
+	x=(0)
+	for i in `ls -v $processdir/*.miff`; do convert $i $processdir/$((x++))_$name.tiff; done 
+	rm -f $processdir/*.miff
 	) |
 	yadProgress	
 	yadError
@@ -1777,7 +1781,7 @@ fi
 fi
 
 # CONVERT DEBAYER ALIGN AND STACK CALIBRATED CFA FILES
-	if [ "$debayer" = "SUPERPIXEL" ]; then
+	if [[ "$debayer" = "SUPERPIXEL" || "$color" = "TRUE" ]]; then
 	echo " " >/dev/null 2>&1; else
 
 	cd $processdir
@@ -1870,6 +1874,8 @@ fi
 
 	if [[ "$interface" = "HUGIN" || "$interface" = "MACROFUSION" ]]; then
 	echo " " >/dev/null 2>&1; else
+
+	cd $processdir
 
 	echo "		Align images"
 	(
