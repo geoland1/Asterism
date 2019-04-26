@@ -53,7 +53,7 @@ fi
 	DESKTOP=$DESKTOP_SESSION
 
 # Asterism version
-	Asterism_version=$'Asterism_0.1.4.9'
+	Asterism_version=$'Asterism_0.1.5.0'
 
 # title
 	title='Asterism'
@@ -350,7 +350,7 @@ $space		Source Files $source 	$vendor
 		--field="- Median":CHK \
 			'TRUE!FALSE' \
 		--field="Flat correction":NUM \
-			'5!0..75!0.1!1' \
+			'5!1..75!0.1!1' \
 		--field="Defect map":FL \
 			'-' \
 		--field="Master bias":FL \
