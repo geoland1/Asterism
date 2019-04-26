@@ -30,6 +30,10 @@ NOTES - Installation and running Asterism
 
 VERSION HISTORY
 
+0.1.5.0
+
+Fixed flat correction multiply by zero - dumb - multiply by 1 for no flat correction.
+
 0.1.4.9
 
 Further improvements to colour processing
